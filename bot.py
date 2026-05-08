@@ -2,49 +2,46 @@ import asyncio
 from aiogram import Bot, Dispatcher, types
 from aiogram.filters import Command
 from aiogram.utils.keyboard import ReplyKeyboardBuilder
+from aiohttp import web
 
-# СЮДА ВСТАВЬТЕ ВАШ ТОКЕН ОТ BOTFATHER
+# ТОКЕН
 API_TOKEN = '8604668488:AAHsI0d1NIJHR8PoqoXJC5wELEXjInr2w2g'
 
 bot = Bot(token=API_TOKEN)
 dp = Dispatcher()
 
+# Код для обхода ограничений Render (создаем пустой веб-сервер)
+async def handle(request):
+    return web.Response(text="Bot is running")
+
+async def on_startup(dispatcher):
+    app = web.Application()
+    app.router.add_get('/', handle)
+    runner = web.AppRunner(app)
+    await runner.setup()
+    site = web.TCPSite(runner, '0.0.0.0', 10000)
+    await site.start()
+
+# ВАШИ КОМАНДЫ БОТА
 @dp.message(Command("start"))
 async def start(message: types.Message):
     builder = ReplyKeyboardBuilder()
     builder.row(types.KeyboardButton(text="📜 Памятка (ВАЖНО)"))
     builder.row(types.KeyboardButton(text="🔑 Как войти в Moodle"))
     builder.row(types.KeyboardButton(text="🆘 Техподдержка"))
-    
-    await message.answer(
-        "Ассаляму алейкум! Это официальный бот Dustur Academy.\nВыберите нужный раздел ниже:",
-        reply_markup=builder.as_markup(resize_keyboard=True)
-    )
+    await message.answer("Ассаляму алейкум! Выберите раздел:", reply_markup=builder.as_markup(resize_keyboard=True))
 
 @dp.message()
 async def actions(message: types.Message):
     if message.text == "📜 Памятка (ВАЖНО)":
-        text = (
-            "🚫 **ГЛАВНОЕ ПРАВИЛО:** Ни в коем случае не нажимайте кнопку 'СКАЧАТЬ' на уроках!\n\n"
-            "Это защищенный контент Bunny.net. Попытка скачивания блокирует плеер и может вызвать сбой системы. "
-            "Смотрите уроки только онлайн внутри платформы."
-        )
-        await message.answer(text, parse_mode="Markdown")
-        
+        await message.answer("🚫 НЕ НАЖИМАЙТЕ 'СКАЧАТЬ'! Это сломает плеер Bunny.net.")
     elif message.text == "🔑 Как войти в Moodle":
-        await message.answer(
-            "🌐 Адрес платформы: https://study.dusturacademy.com\n\n"
-            "📱 Если используете приложение Moodle:\n"
-            "1. Введите адрес сайта.\n2. Введите ваш логин/пароль."
-        )
-        
+        await message.answer("🌐 Сайт: https://study.dusturacademy.com")
     elif message.text == "🆘 Техподдержка":
-        await message.answer(
-            "Если у вас возникла проблема, напишите в личные сообщения: @ВАШ_НИК_В_ТГ\n"
-            "Обязательно пришлите скриншот ошибки!"
-        )
+        await message.answer("Пишите админу: @ВАШ_НИК")
 
 async def main():
+    await on_startup(dp) # Запуск фейкового сервера
     await dp.start_polling(bot)
 
 if __name__ == '__main__':
