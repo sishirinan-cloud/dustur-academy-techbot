@@ -33,8 +33,15 @@ async def start(message: types.Message):
 
 @dp.message()
 async def actions(message: types.Message):
-    if message.text == "📜 Памятка (ВАЖНО)":
-        await message.answer("🚫 НЕ НАЖИМАЙТЕ 'СКАЧАТЬ'! Это сломает плеер Bunny.net.")
+if message.text == "📜 Памятка (ВАЖНО)":
+        text = (
+            "⚠️ **ВНИМАНИЕ: ПРАВИЛА ПРОСМОТРА УРОКОВ** ⚠️\n\n"
+            "1. Смотрите видео только через плеер на сайте.\n"
+            "2. **КАТЕГОРИЧЕСКИ ЗАПРЕЩЕНО** нажимать кнопку 'Скачать'.\n"
+            "3. При попытке скачивания система защиты Bunny.net блокирует ваш IP-адрес.\n"
+            "4. Разблокировка доступа занимает до 24 часов через техподдержку."
+        )
+        await message.answer(text, parse_mode="Markdown")
     elif message.text == "🔑 Как войти в Moodle":
         await message.answer("🌐 Сайт: https://study.dusturacademy.com")
     elif message.text == "🆘 Техподдержка":
